@@ -70,7 +70,6 @@ function getRandom(){
         if(error){
             return console.log(error);
         }
-
         var dataArr = data.split(",");
         var action = dataArr[0];
         searchParam = dataArr[1];
