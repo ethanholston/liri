@@ -1,4 +1,5 @@
 require("dotenv").config();
+var moment = require('moment');
 var axios = require("axios");
 var keys = require("./keys.js");
 var Spotify = require('node-spotify-api');
@@ -9,10 +10,15 @@ var spotify = new Spotify({
 
 var queryUrl;
 
-switch(process.argv[2]){
-    case "spotify-this-song": getSong();
-    case "movie-this": getMovie();
-    case "concert-this": getConcert();
+function liri(){
+    switch(process.argv[2]){
+        case "spotify-this-song": getSong();
+        break;
+        case "movie-this": getMovie();
+        break;
+        case "concert-this": getConcert();
+        break;
+    }
 }
 
 function getSong(){
@@ -28,9 +34,18 @@ function getMovie(){
     queryUrl = "http://www.omdbapi.com/?t=" + process.argv[3] + "&y=&plot=short&apikey=trilogy";
     axios.get(queryUrl).then(
         function(response) {
-          console.log("Title: " + response.data.Title + "\nYear: " + response.data.Year + "\nIMDB Rating: " + response.data.Ratings[0].Value + "\nRotten Tomatoes Rating: " + response.data.Ratings[1].Value + "\nCountry: " + response.data.Country + "\nLanguage(s): " + response.data.Language + "\nPlot: " + response.data.Plot + "\nActors: " + response.data.Actors);
+            console.log("Title: " + response.data.Title + "\nYear: " + response.data.Year + "\nIMDB Rating: " + response.data.Ratings[0].Value + "\nRotten Tomatoes Rating: " + response.data.Ratings[1].Value + "\nCountry: " + response.data.Country + "\nLanguage(s): " + response.data.Language + "\nPlot: " + response.data.Plot + "\nActors: " + response.data.Actors);
         }
-      );
+    );
 }
 
-getMovie();
+function getConcert(){
+    queryUrl = "https://rest.bandsintown.com/artists/" + process.argv[3] + "/events?app_id=codingbootcamp";
+    axios.get(queryUrl).then(
+        function(response){
+            console.log("Venue name: " + response.data[0].venue.name + "\nLocation: " + response.data[0].venue.city + ", " + response.data[0].venue.region + "\nDate: " + moment(response.data[0].datetime).format("MM/DD/YYYY"))
+        }
+    );
+}
+
+liri();
