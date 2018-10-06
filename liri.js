@@ -22,7 +22,13 @@ function liri(){
 }
 
 function getSong(){
-    spotify.search({ type: 'track', query: process.argv[3] }, function(err, data) {
+    if(process.argv[3]){
+        songName = process.argv[3];
+    }
+    else{
+        songName = "The Sign Ace of Base";
+    }
+    spotify.search({ type: 'track', query: songName }, function(err, data) {
         if (err) {
           return console.log('Error occurred: ' + err);
         }
@@ -31,7 +37,14 @@ function getSong(){
 }
 
 function getMovie(){
-    queryUrl = "http://www.omdbapi.com/?t=" + process.argv[3] + "&y=&plot=short&apikey=trilogy";
+    var movieName;
+    if(process.argv[3]){
+        movieName = process.argv[3];
+    }
+    else{
+        movieName = "Mr Nobody";
+    }
+    queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
     axios.get(queryUrl).then(
         function(response) {
             console.log("Title: " + response.data.Title + "\nYear: " + response.data.Year + "\nIMDB Rating: " + response.data.Ratings[0].Value + "\nRotten Tomatoes Rating: " + response.data.Ratings[1].Value + "\nCountry: " + response.data.Country + "\nLanguage(s): " + response.data.Language + "\nPlot: " + response.data.Plot + "\nActors: " + response.data.Actors);
