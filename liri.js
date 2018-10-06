@@ -1,4 +1,5 @@
 require("dotenv").config();
+var fs = require("fs");
 var moment = require('moment');
 var axios = require("axios");
 var keys = require("./keys.js");
@@ -9,26 +10,28 @@ var spotify = new Spotify({
     });
 
 var queryUrl;
+var searchParam;
 
-function liri(){
-    switch(process.argv[2]){
+function liri(x){
+    switch(x){
         case "spotify-this-song": getSong();
         break;
         case "movie-this": getMovie();
         break;
         case "concert-this": getConcert();
         break;
+        case "do-what-it-says": getRandom();
     }
 }
 
 function getSong(){
     if(process.argv[3]){
-        songName = process.argv[3];
+        searchParam = process.argv[3];
     }
-    else{
-        songName = "The Sign Ace of Base";
+    else if(!searchParam){
+        searchParam = "The Sign Ace of Base";
     }
-    spotify.search({ type: 'track', query: songName }, function(err, data) {
+    spotify.search({ type: 'track', query: searchParam }, function(err, data) {
         if (err) {
           return console.log('Error occurred: ' + err);
         }
@@ -37,14 +40,14 @@ function getSong(){
 }
 
 function getMovie(){
-    var movieName;
+    var searchParam;
     if(process.argv[3]){
-        movieName = process.argv[3];
+        searchParam = process.argv[3];
     }
     else{
-        movieName = "Mr Nobody";
+        searchParam = "Mr Nobody";
     }
-    queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
+    queryUrl = "http://www.omdbapi.com/?t=" + searchParam + "&y=&plot=short&apikey=trilogy";
     axios.get(queryUrl).then(
         function(response) {
             console.log("Title: " + response.data.Title + "\nYear: " + response.data.Year + "\nIMDB Rating: " + response.data.Ratings[0].Value + "\nRotten Tomatoes Rating: " + response.data.Ratings[1].Value + "\nCountry: " + response.data.Country + "\nLanguage(s): " + response.data.Language + "\nPlot: " + response.data.Plot + "\nActors: " + response.data.Actors);
@@ -53,7 +56,8 @@ function getMovie(){
 }
 
 function getConcert(){
-    queryUrl = "https://rest.bandsintown.com/artists/" + process.argv[3] + "/events?app_id=codingbootcamp";
+    searchParam = process.argv[3];
+    queryUrl = "https://rest.bandsintown.com/artists/" + searchParam + "/events?app_id=codingbootcamp";
     axios.get(queryUrl).then(
         function(response){
             console.log("Venue name: " + response.data[0].venue.name + "\nLocation: " + response.data[0].venue.city + ", " + response.data[0].venue.region + "\nDate: " + moment(response.data[0].datetime).format("MM/DD/YYYY"))
@@ -61,4 +65,18 @@ function getConcert(){
     );
 }
 
-liri();
+function getRandom(){
+    random = fs.readFile("random.txt", "utf8", function(error, data){
+        if(error){
+            return console.log(error);
+        }
+
+        var dataArr = data.split(",");
+        var action = dataArr[0];
+        searchParam = dataArr[1];
+        liri(action);
+        })
+        
+}
+
+liri(process.argv[2]);
